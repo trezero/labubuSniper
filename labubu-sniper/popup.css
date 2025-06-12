@@ -1,0 +1,83 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    width: 320px;
+    margin: 0;
+    padding: 15px;
+    background-color: #f4f5f7;
+  }
+  
+  .container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  h1 {
+    font-size: 18px;
+    color: #172b4d;
+    text-align: center;
+    margin: 0 0 10px 0;
+  }
+  
+  #status {
+    text-align: center;
+    padding: 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    background-color: #e9ecef;
+    color: #495057;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  label {
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: #495057;
+  }
+  
+  input[type="text"],
+  input[type="date"],
+  input[type="time"],
+  input[type="number"] {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  
+  .button-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  button {
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background-color 0.2s;
+  }
+  
+  #setAlarm {
+    background-color: #007bff;
+    color: white;
+  }
+  #setAlarm:hover {
+    background-color: #0056b3;
+  }
+  
+  #cancelAlarm {
+    background-color: #dc3545;
+    color: white;
+  }
+  #cancelAlarm:hover {
+    background-color: #c82333;
+  }

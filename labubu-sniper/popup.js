@@ -12,11 +12,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const urls = generateSequentialUrls(baseUrl, 10);
-    urls.forEach((url, index) => {
-      chrome.tabs.create({ url, active: index === 0 });
+    // Send message to background to open tabs with delay (persists after popup closes)
+    chrome.runtime.sendMessage({ action: 'openVariants', urls, delayMs: 1500 }, (resp) => {
+      if (resp && resp.status === 'ok') {
+        updateStatus(`${urls.length} tabs will open (1.5 s apart). You may close this popup.`);
+        window.close();
+      } else {
+        updateStatus('Error communicating with background.');
+      }
     });
-
-    updateStatus(`${urls.length} tabs opened.`);
   });
 
   function updateStatus(message) {
@@ -36,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
    * @returns {string[]}      Array containing `count` generated URLs.
    */
   function generateSequentialUrls(baseUrl, count = 10) {
-    const regex = /(.*1000)(\d{4})(600280.*)/;
+    const regex = /(.*1000)(\d{4})(.*)/;
     const match = baseUrl.match(regex);
     if (!match) {
       // If the pattern isn't found, just return the original URL.
@@ -53,5 +57,14 @@ document.addEventListener('DOMContentLoaded', () => {
       urls.push(`${prefix}${newSku}${suffix}`);
     }
     return urls;
+  }
+
+  // openTabsWithDelay kept for potential future use but not called here.
+  function openTabsWithDelay(urls, delayMs = 1000) {
+    urls.forEach((url, index) => {
+      setTimeout(() => {
+        chrome.tabs.create({ url, active: index === 0 });
+      }, index * delayMs);
+    });
   }
 });

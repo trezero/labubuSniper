@@ -1,37 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Drop Sniper</title>
+  <title>Variant Opener</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
   <div class="container">
-    <h1>Labubu Drop Sniper</h1>
-    <div id="status">No drop scheduled.</div>
+    <h1>Variant Opener</h1>
+    <div id="status">Enter a base URL and click "Open Variants".</div>
 
     <div class="form-group">
       <label for="url">Product URL:</label>
-      <input type="text" id="url" placeholder="https://www.popmart.com/...">
-    </div>
-
-    <div class="form-group">
-      <label for="date">Drop Date:</label>
-      <input type="date" id="date">
-    </div>
-
-    <div class="form-group">
-      <label for="time">Drop Time:</label>
-      <input type="time" id="time" step="1">
-    </div>
-
-    <div class="form-group">
-      <label for="offset">Open Before Drop (seconds):</label>
-      <input type="number" id="offset" value="2" min="0" max="60">
+      <input type="text" id="url" placeholder="https://www.popmart.com/us/pop-now/set/40-10007802600280">
     </div>
 
     <div class="button-group">
-      <button id="setAlarm">Set Drop Alert</button>
-      <button id="cancelAlarm">Cancel Alert</button>
+      <button id="openVariants">Open Variants</button>
     </div>
   </div>
   <script src="popup.js"></script>

@@ -1,80 +1,57 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const urlInput = document.getElementById('url');
-    const dateInput = document.getElementById('date');
-    const timeInput = document.getElementById('time');
-    const offsetInput = document.getElementById('offset');
-    const setAlarmBtn = document.getElementById('setAlarm');
-    const cancelAlarmBtn = document.getElementById('cancelAlarm');
-    const statusDiv = document.getElementById('status');
-  
-    // Load any existing alarm info when the popup opens
-    chrome.storage.sync.get('dropInfo', (data) => {
-      if (data.dropInfo) {
-        const { url, date, time, offset, triggerTime } = data.dropInfo;
-        urlInput.value = url;
-        dateInput.value = date;
-        timeInput.value = time;
-        offsetInput.value = offset;
-        updateStatus(`Alert set for: ${new Date(triggerTime).toLocaleString()}`);
-      } else {
-        updateStatus('No drop scheduled.');
-      }
-    });
-  
-    // Set Alarm Button Logic
-    setAlarmBtn.addEventListener('click', () => {
-      const url = urlInput.value;
-      const date = dateInput.value;
-      const time = timeInput.value;
-      const offset = parseInt(offsetInput.value, 10);
-  
-      if (!url || !date || !time) {
-        updateStatus('Error: Please fill all fields.');
-        return;
-      }
-  
-      // Combine date and time to create a target timestamp
-      const dropDateTime = new Date(`${date}T${time}`);
-      const triggerTime = dropDateTime.getTime() - (offset * 1000);
-  
-      if (triggerTime < Date.now()) {
-          updateStatus('Error: The scheduled time is in the past.');
-          return;
-      }
-  
-      // Save the info to storage
-      const dropInfo = { url, date, time, offset, triggerTime };
-      chrome.storage.sync.set({ dropInfo }, () => {
-        // Create the alarm
-        chrome.alarms.create('labubuDrop', { when: triggerTime });
-        
-        // Notify the user
-        chrome.notifications.create({
-            type: 'basic',
-            iconUrl: 'icons/icon128.png',
-            title: 'Drop Sniper Set!',
-            message: `Alert is set for ${new Date(triggerTime).toLocaleString()}`,
-            priority: 2
-        });
-        
-        updateStatus(`Alert set for: ${new Date(triggerTime).toLocaleString()}`);
-        window.close(); // Close the popup
-      });
-    });
-  
-    // Cancel Alarm Button Logic
-    cancelAlarmBtn.addEventListener('click', () => {
-      chrome.alarms.clear('labubuDrop', (wasCleared) => {
-        chrome.storage.sync.remove('dropInfo', () => {
-          updateStatus('Alert canceled.');
-          urlInput.value = '';
-          dateInput.value = '';
-          timeInput.value = '';
-        });
-      });
-    });
-  
-    function updateStatus(message) {
-      statusDiv.textContent = message;
+  const urlInput = document.getElementById('url');
+  const openBtn = document.getElementById('openVariants');
+  const statusDiv = document.getElementById('status');
+
+  // Button click -> generate sequential URLs and open them in new tabs
+  openBtn.addEventListener('click', () => {
+    const baseUrl = urlInput.value.trim();
+    if (!baseUrl) {
+      updateStatus('Error: Please enter a base URL.');
+      return;
     }
+
+    const urls = generateSequentialUrls(baseUrl, 10);
+    urls.forEach((url, index) => {
+      chrome.tabs.create({ url, active: index === 0 });
+    });
+
+    updateStatus(`${urls.length} tabs opened.`);
   });
+
+  function updateStatus(message) {
+    statusDiv.textContent = message;
+  }
+
+  /**
+   * Generate an array of sequential URLs by incrementing the 4-digit SKU segment
+   * immediately after the string "1000" and before "600280".
+   *
+   * For example, given the base URL:
+   *   https://www.popmart.com/us/pop-now/set/40-10007802600280
+   * the function will return the next `count` URLs with the SKU segment +1, +2, ...
+   *
+   * @param {string} baseUrl  The initial product URL.
+   * @param {number} count    The number of sequential URLs to generate.
+   * @returns {string[]}      Array containing `count` generated URLs.
+   */
+  function generateSequentialUrls(baseUrl, count = 10) {
+    const regex = /(.*1000)(\d{4})(600280.*)/;
+    const match = baseUrl.match(regex);
+    if (!match) {
+      // If the pattern isn't found, just return the original URL.
+      return Array(count).fill(baseUrl);
+    }
+
+    const prefix = match[1];
+    const skuNum = parseInt(match[2], 10);
+    const suffix = match[3];
+
+    const urls = [];
+    for (let i = 1; i <= count; i++) {
+      const newSku = String(skuNum + i).padStart(4, '0');
+      urls.push(`${prefix}${newSku}${suffix}`);
+    }
+    return urls;
+  }
+});
